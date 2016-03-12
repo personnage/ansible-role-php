@@ -56,6 +56,7 @@ php_source_configure_command: >
   ./configure
   --prefix={{ php_source_install_path }}
   --with-config-file-path={{ php_conf_paths | first }}
+  --with-config-file-scan-dir={{ php_extension_conf_paths | first }}
   --enable-mbstring
   --enable-zip
   --enable-bcmath
