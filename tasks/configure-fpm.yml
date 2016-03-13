@@ -55,7 +55,7 @@
 
 - name: Remove custom pool.
   file: path={{ php_fpm_pool_conf_dir }}/{{ item }} state=absent
-  with_items: php_fpm_custom_pool_conf.stdout_lines
+  with_items: "{{ php_fpm_custom_pool_conf.stdout_lines }}"
   when: php_enable_php_fpm or (php_fpm_pools|length == 0)
   notify: restart php-fpm
 
