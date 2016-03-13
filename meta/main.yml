@@ -2,9 +2,8 @@
 dependencies: []
 
 galaxy_info:
-  author: geerlingguy
+  author: personnage
   description: PHP for RedHat/CentOS/Debian/Ubuntu.
-  company: "Midwestern Mac, LLC"
   license: "license (BSD, MIT)"
   min_ansible_version: 1.9
   platforms:
