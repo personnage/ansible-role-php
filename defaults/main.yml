@@ -7,12 +7,27 @@ php_enable_webserver: true
 
 # PHP-FPM configuration.
 php_enable_php_fpm: false
-php_fpm_listen: "127.0.0.1:9000"
-php_fpm_listen_allowed_clients: "127.0.0.1"
-php_fpm_pm_max_children: 50
-php_fpm_pm_start_servers: 5
-php_fpm_pm_min_spare_servers: 5
-php_fpm_pm_max_spare_servers: 5
+php_fpm_pools: []
+# Example pool below, showing all available options:
+# - name: "www"
+#   user: "www-data"
+#   group: "www-data"
+#   listen: "127.0.0.1"
+#   listen.owner: "www-data"
+#   listen.group: "www-data"
+#   listen.allowed_clients: "127.0.0.1"
+#   pm.max_children: "50"
+#   pm.start_servers: "5"
+#   pm.min_spare_servers: "5"
+#   pm.max_spare_servers: "5"
+#   pm.max_requests: "2000"
+#   pm.status_path: "/fpm_status"
+#   request_terminate_timeout: "30"
+#   security.limit_extensions: ".php"
+#   extra: |
+#     env[TMP] = /tmp
+#     php_admin_value[error_reporting] = E_ALL
+#     ...
 
 # The executable to run when calling PHP from the command line.
 php_executable: "php"

@@ -9,13 +9,27 @@
     php_fpm_pool_conf_path: "{{ __php_fpm_pool_conf_path }}"
   when: php_fpm_pool_conf_path is not defined
 
+- name: Define php_fpm_pool_conf_dir.
+  set_fact:
+    php_fpm_pool_conf_dir: "{{ php_fpm_pool_conf_path | dirname }}"
+  when: php_fpm_pool_conf_dir is not defined
+
 - name: Ensure the default pool directory exists.
   file:
-    path: "{{ php_fpm_pool_conf_path | dirname }}"
+    path: "{{ php_fpm_pool_conf_dir }}"
     state: directory
     owner: root
     group: root
     mode: 0755
+
+- name: Define php_fpm_noname_pool_conf_path.
+  set_fact:
+    php_fpm_noname_pool_conf_path: "{{ php_fpm_pool_conf_dir }}/_.default"
+  when: php_fpm_noname_pool_conf_path is not defined
+
+- name: Define php_fpm_noname_pool_info
+  stat: path={{ php_fpm_noname_pool_conf_path }}
+  register: php_fpm_noname_pool_info
 
 - name: Ensure the default pool exists.
   copy:
@@ -25,32 +39,42 @@
     group: root
     mode: 0644
     force: no
+  when: php_fpm_noname_pool_info.stat.exists == false
 
-- name: Configure php-fpm pool (if enabled).
-  lineinfile:
-    dest: "{{ php_fpm_pool_conf_path }}"
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-    state: present
-  with_items:
-    - regexp: "^listen.?=.+$"
-      line: "listen = {{ php_fpm_listen }}"
-    - regexp: '^listen\.allowed_clients.?=.+$'
-      line: "listen.allowed_clients = {{ php_fpm_listen_allowed_clients }}"
-    - regexp: '^pm\.max_children.?=.+$'
-      line: "pm.max_children = {{ php_fpm_pm_max_children }}"
-    - regexp: '^pm\.start_servers.?=.+$'
-      line: "pm.start_servers = {{ php_fpm_pm_start_servers }}"
-    - regexp: '^pm\.min_spare_servers.?=.+$'
-      line: "pm.min_spare_servers = {{ php_fpm_pm_min_spare_servers }}"
-    - regexp: '^pm\.max_spare_servers.?=.+$'
-      line: "pm.max_spare_servers = {{ php_fpm_pm_max_spare_servers }}"
+- name: Rename default pool.
+  command: mv -n {{ php_fpm_pool_conf_path }} {{ php_fpm_noname_pool_conf_path }}
+  when: php_enable_php_fpm and (php_fpm_noname_pool_info.stat.exists == false)
+  notify: restart php-fpm
+
+- name: Define php_fpm_custom_pool_conf
+  shell: >
+    find . -type f -iname '*.conf'
+    chdir={{ php_fpm_pool_conf_dir }}
+  register: php_fpm_custom_pool_conf
   when: php_enable_php_fpm
+
+- name: Remove custom pool.
+  file: path={{ php_fpm_pool_conf_dir }}/{{ item }} state=absent
+  with_items: php_fpm_custom_pool_conf.stdout_lines
+  when: php_enable_php_fpm or (php_fpm_pools|length == 0)
+  notify: restart php-fpm
+
+- name: Ensure the custom pool exists.
+  shell: >
+    cp -n {{ php_fpm_noname_pool_conf_path }} {{ item.name }}.conf
+    chdir={{ php_fpm_pool_conf_dir }}
+  with_items: "{{ php_fpm_pools }}"
+  when: php_enable_php_fpm and (php_fpm_pools|length > 0)
+  notify: restart php-fpm
+
+- include: configure-fpm-pool.yml
+  when: php_enable_php_fpm and (php_fpm_pools|length > 0)
   notify: restart php-fpm
 
 - name: Ensure php-fpm is started and enabled at boot (if configured).
-  service:
-    name: "{{ php_fpm_daemon }}"
-    state: started
-    enabled: yes
-  when: php_enable_php_fpm
+  service: name={{ php_fpm_daemon }} state=started enabled=yes
+  when: php_enable_php_fpm and (php_fpm_pools|length > 0)
+
+- name: Ensure php-fpm is stopped and disabled at boot (if configured).
+  service: name={{ php_fpm_daemon }} state=stopped enabled=no
+  when: php_enable_php_fpm == false or (php_fpm_pools|length == 0)
