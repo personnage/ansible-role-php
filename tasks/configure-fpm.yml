@@ -78,7 +78,3 @@
 - name: Ensure php-fpm is started and enabled at boot (if configured).
   service: name={{ php_fpm_daemon }} state=started enabled=yes
   when: php_enable_php_fpm and (php_fpm_pools|length > 0)
-
-- name: Ensure php-fpm is stopped and disabled at boot (if configured) (if package).
-  service: name={{ php_fpm_daemon }} state=stopped enabled=no
-  when: (php_enable_php_fpm == false or php_fpm_pools|length == 0) and ((php_install_from_source == false) or (php_install_from_source and "'--enable-fpm' in php_source_configure_command"))
