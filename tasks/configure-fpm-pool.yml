@@ -1,0 +1,158 @@
+---
+- name: Configure php-fpm custom pool (name).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "[{{ item.name }}]"
+    regexp: '^\[.+\]$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+
+- name: Configure php-fpm custom pool (user).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "user = {{ item.user }}"
+    regexp: '^user.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item.user is defined
+
+- name: Configure php-fpm custom pool (group).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "group = {{ item.group }}"
+    regexp: '^group.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item.group is defined
+
+- name: Configure php-fpm custom pool (listen).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "listen = {{ item.listen }}"
+    regexp: "^listen.?=.+$"
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item.listen is defined
+
+- name: Configure php-fpm custom pool (listen.owner).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "listen.owner = {{ item['listen.owner'] }}"
+    regexp: '^listen\.owner.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['listen.owner'] is defined
+
+- name: Configure php-fpm custom pool (listen.group).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "listen.group = {{ item['listen.group'] }}"
+    regexp: '^listen\.group.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['listen.group'] is defined
+
+- name: Configure php-fpm custom pool (listen.allowed_clients).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "listen.allowed_clients = {{ item['listen.allowed_clients'] }}"
+    regexp: '^.?listen\.allowed_clients.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['listen.allowed_clients'] is defined
+
+- name: Configure php-fpm custom pool (pm.max_children).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.max_children = {{ item['pm.max_children'] }}"
+    regexp: '^pm\.max_children.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.max_children'] is defined
+
+- name: Configure php-fpm custom pool (pm.start_servers).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.start_servers = {{ item['pm.start_servers'] }}"
+    regexp: '^pm\.start_servers.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.start_servers'] is defined
+
+- name: Configure php-fpm custom pool (pm.min_spare_servers).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.min_spare_servers = {{ item['pm.min_spare_servers'] }}"
+    regexp: '^pm\.min_spare_servers.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.min_spare_servers'] is defined
+
+- name: Configure php-fpm custom pool (pm.max_spare_servers).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.max_spare_servers = {{ item['pm.max_spare_servers'] }}"
+    regexp: '^pm\.max_spare_servers.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.max_spare_servers'] is defined
+
+- name: Configure php-fpm custom pool (pm.max_requests).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.max_requests = {{ item['pm.max_requests'] }}"
+    regexp: '^.?pm\.max_requests.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.max_requests'] is defined
+
+- name: Configure php-fpm custom pool (pm.status_path).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "pm.status_path = {{ item['pm.status_path'] }}"
+    regexp: '^.?pm\.status_path.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['pm.status_path'] is defined
+
+- name: Configure php-fpm custom pool (request_terminate_timeout).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "request_terminate_timeout = {{ item.request_terminate_timeout }}"
+    regexp: '^.?request_terminate_timeout.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item.request_terminate_timeout is defined
+
+- name: Configure php-fpm custom pool (security.limit_extensions).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "security.limit_extensions = {{ item['security.limit_extensions'] }}"
+    regexp: '^.?security\.limit_extensions.?=.+$'
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item['security.limit_extensions'] is defined
+
+- name: Configure php-fpm custom pool (extra).
+  lineinfile:
+    dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
+    line: "{{ item.extra|e }}"
+    state: present
+  with_items:
+    - "{{ php_fpm_pools }}"
+  when: item.extra is defined and item.extra|length > 0

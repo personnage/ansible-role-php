@@ -1,0 +1,6 @@
+[CUSTOM]
+{% for hash in php_custom_ini %}
+{% for key, value in hash.iteritems() %}
+{{key}}={{value}}
+{% endfor %}
+{% endfor %}

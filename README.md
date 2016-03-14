@@ -1,6 +1,6 @@
 # Ansible Role: PHP
 
-[![Build Status](https://travis-ci.org/geerlingguy/ansible-role-php.svg?branch=master)](https://travis-ci.org/geerlingguy/ansible-role-php)
+[![Build Status](https://travis-ci.org/personnage/ansible-role-php.svg?branch=master)](https://travis-ci.org/personnage/ansible-role-php)
 
 Installs PHP on RedHat/CentOS and Debian/Ubuntu servers.
 
@@ -44,43 +44,46 @@ When using this role with PHP running as `php-fpm` instead of as a process insid
 
 If you're using Apache, you can easily get it configured to work with PHP-FPM using the [geerlingguy.apache-php-fpm](https://github.com/geerlingguy/ansible-role-apache-php-fpm) role.
 
-    php_fpm_listen: "127.0.0.1:9000"
-    php_fpm_listen_allowed_clients: "127.0.0.1"
-    php_fpm_pm_max_children: 50
-    php_fpm_pm_start_servers: 5
-    php_fpm_pm_min_spare_servers: 5
-    php_fpm_pm_max_spare_servers: 5
+You can configure multiple pools:
 
-Specific settings inside the default `www.conf` PHP-FPM pool. If you'd like to manage additional settings, you can do so either by replacing the file with your own template or using `lineinfile` like this role does inside `tasks/configure.yml`.
+    php_fpm_pools:
+      - name: www_9000
+        listen: "127.0.0.1:9000"
+      - name: www_9001
+        listen: "127.0.0.1:9001"
 
-### php.ini settings
+    php_fpm_pools:
+      - name: "www"
+        user: "www-data"
+        group: "www-data"
+        listen: "127.0.0.1"
+        listen.owner: "www-data"
+        listen.group: "www-data"
+        listen.allowed_clients: "127.0.0.1"
+        pm.max_children: "50"
+        pm.start_servers: "5"
+        pm.min_spare_servers: "5"
+        pm.max_spare_servers: "5"
+        pm.max_requests: "2000"
+        pm.status_path: "/fpm_status"
+        request_terminate_timeout: "30"
+        security.limit_extensions: ".php"
+        extra: |
+          env[TMP] = /tmp
+          php_admin_value[error_reporting] = E_ALL
+          ...
 
-    php_use_managed_ini: true
+### php_custom.ini settings
 
-By default, all the extra defaults below are applied through the php.ini included with this role. You can self-manage your php.ini file (if you need more flexility in its configuration) by setting this to `false` (in which case all the below variables will be ignored).
+    php_custom_ini: []
 
-    php_memory_limit: "256M"
-    php_max_execution_time: "60"
-    php_max_input_time: "60"
-    php_max_input_vars: "1000"
-    php_realpath_cache_size: "32K"
-    php_upload_max_filesize: "64M"
-    php_post_max_size: "32M"
-    php_date_timezone: "America/Chicago"
-    php_sendmail_path: "/usr/sbin/sendmail -t -i"
-    php_short_open_tag: false
-    php_error_reporting: "E_ALL & ~E_DEPRECATED & ~E_STRICT"
-    php_display_errors: "Off"
-    php_display_startup_errors: "On"
-    php_expose_php: "On"
-    php_session_cookie_lifetime: 0
-    php_session_gc_probability: 1
-    php_session_gc_divisor: 1000
-    php_session_gc_maxlifetime: 1440
-    php_session_save_handler: files
-    php_session_save_path: ''
+By default, all the extra defaults below are applied through the php_custom.ini included with this role. You can add any options available in php.ini.
 
-Various defaults for PHP. Only used if `php_use_managed_ini` is set to `true`.
+    php_custom_ini:
+      - date.timezone: "America/Chicago"
+      - error_reporting: "E_ALL & ~E_DEPRECATED & ~E_STRICT"
+      - memory_limit: "128M"
+      - session.save_path: ""
 
 ### OpCache-related Variables
 
@@ -181,13 +184,14 @@ None.
       vars_files:
         - vars/main.yml
       roles:
-        - { role: geerlingguy.php }
+        - { role: personnage.php }
 
 *Inside `vars/main.yml`*:
 
-    php_memory_limit: "128M"
-    php_max_execution_time: "90"
-    php_upload_max_filesize: "256M"
+    php_custom_ini:
+      - always_populate_raw_post_data: "-1"
+      - display_errors: true
+      - session.use_strict_mode: 0
     php_packages:
       - php
       - php-cli
@@ -207,3 +211,5 @@ MIT / BSD
 ## Author Information
 
 This role was created in 2014 by [Jeff Geerling](http://jeffgeerling.com/), author of [Ansible for DevOps](http://ansiblefordevops.com/).
+
+This role was revised in 2016 by [The Personnage](https://github.com/personnage)

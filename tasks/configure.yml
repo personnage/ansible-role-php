@@ -8,16 +8,26 @@
     - "{{ php_conf_paths }}"
     - "{{ php_extension_conf_paths }}"
 
-- name: Place PHP configuration file in place.
+- name: Place custom PHP configuration file in place.
   template:
-    src: php.ini.j2
-    dest: "{{ item }}/php.ini"
+    src: php_custom.ini.j2
+    dest: "{{ item }}/99-php-custom.ini"
     owner: root
     group: root
     mode: 0644
-  with_items: "{{ php_conf_paths }}"
+  with_items:
+    - "{{ php_extension_conf_paths }}"
   notify: restart webserver
-  when: php_use_managed_ini
+  when: php_custom_ini|length > 0
+
+- name: Remove custom PHP configuration file.
+  file:
+    path: "{{ item }}/99-php-custom.ini"
+    state: absent
+  with_items:
+    - "{{ php_extension_conf_paths }}"
+  notify: restart webserver
+  when: php_custom_ini|length == 0
 
 - name: Place APC configuration file in place.
   template:
