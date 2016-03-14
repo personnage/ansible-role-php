@@ -53,7 +53,7 @@ You can configure multiple pools:
         listen: "127.0.0.1:9001"
 
     php_fpm_pools:
-      - name: "www"s
+      - name: "www"
         user: "www-data"
         group: "www-data"
         listen: "127.0.0.1"
