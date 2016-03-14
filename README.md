@@ -44,14 +44,34 @@ When using this role with PHP running as `php-fpm` instead of as a process insid
 
 If you're using Apache, you can easily get it configured to work with PHP-FPM using the [geerlingguy.apache-php-fpm](https://github.com/geerlingguy/ansible-role-apache-php-fpm) role.
 
-    php_fpm_listen: "127.0.0.1:9000"
-    php_fpm_listen_allowed_clients: "127.0.0.1"
-    php_fpm_pm_max_children: 50
-    php_fpm_pm_start_servers: 5
-    php_fpm_pm_min_spare_servers: 5
-    php_fpm_pm_max_spare_servers: 5
+You can configure multiple pools:
 
-Specific settings inside the default `www.conf` PHP-FPM pool. If you'd like to manage additional settings, you can do so either by replacing the file with your own template or using `lineinfile` like this role does inside `tasks/configure.yml`.
+    php_fpm_pools:
+      - name: www_9000
+        listen: "127.0.0.1:9000"
+      - name: www_9001
+        listen: "127.0.0.1:9001"
+
+    php_fpm_pools:
+      - name: "www"s
+        user: "www-data"
+        group: "www-data"
+        listen: "127.0.0.1"
+        listen.owner: "www-data"
+        listen.group: "www-data"
+        listen.allowed_clients: "127.0.0.1"
+        pm.max_children: "50"
+        pm.start_servers: "5"
+        pm.min_spare_servers: "5"
+        pm.max_spare_servers: "5"
+        pm.max_requests: "2000"
+        pm.status_path: "/fpm_status"
+        request_terminate_timeout: "30"
+        security.limit_extensions: ".php"
+        extra: |
+          env[TMP] = /tmp
+          php_admin_value[error_reporting] = E_ALL
+          ...
 
 ### php_custom.ini settings
 
