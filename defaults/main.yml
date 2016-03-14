@@ -2,7 +2,7 @@
 # Pass in a comma-separated list of repos to use (e.g. "remi,epel").
 php_enablerepo: ""
 
-# Set this to false if you're not using PHP with Apache/Nginx/etc.
+# Set this to false if you're not using PHP with Apache/etc.
 php_enable_webserver: true
 
 # PHP-FPM configuration.

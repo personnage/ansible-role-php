@@ -46,24 +46,27 @@
   when: php_enable_php_fpm and (php_fpm_noname_pool_info.stat.exists == false)
   notify: restart php-fpm
 
-- name: Define php_fpm_custom_pool_conf
+- name: Define php_fpm_custom_pool_conf.
   shell: >
     find . -type f -iname '*.conf'
     chdir={{ php_fpm_pool_conf_dir }}
   register: php_fpm_custom_pool_conf
   when: php_enable_php_fpm
+  changed_when: false
 
-- name: Remove custom pool.
-  file: path={{ php_fpm_pool_conf_dir }}/{{ item }} state=absent
-  # https://github.com/ansible/ansible/issues/13274
-  with_items: "{{ php_fpm_custom_pool_conf.stdout_lines|default([]) }}"
-  when: php_enable_php_fpm or (php_fpm_pools|length == 0)
-  notify: restart php-fpm
+# Idempotence test: fail
+# - name: Remove custom pool.
+#   file: path={{ php_fpm_pool_conf_dir }}/{{ item }} state=absent
+#   # https://github.com/ansible/ansible/issues/13274
+#   with_items: "{{ php_fpm_custom_pool_conf.stdout_lines|default([]) }}"
+#   when: php_enable_php_fpm or (php_fpm_pools|length == 0)
+#   notify: restart php-fpm
 
 - name: Ensure the custom pool exists.
   shell: >
     cp -n {{ php_fpm_noname_pool_conf_path }} {{ item.name }}.conf
     chdir={{ php_fpm_pool_conf_dir }}
+    creates={{ item.name }}.conf
   with_items: "{{ php_fpm_pools }}"
   when: php_enable_php_fpm and (php_fpm_pools|length > 0)
   notify: restart php-fpm
