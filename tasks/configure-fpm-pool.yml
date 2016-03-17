@@ -151,7 +151,7 @@
 - name: Configure php-fpm custom pool (extra).
   lineinfile:
     dest: "{{ php_fpm_pool_conf_dir }}/{{ item.name }}.conf"
-    line: "{{ item.extra|e }}"
+    line: "{{ item.extra }}"
     state: present
   with_items:
     - "{{ php_fpm_pools }}"
